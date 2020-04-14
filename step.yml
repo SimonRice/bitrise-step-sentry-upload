@@ -49,6 +49,13 @@ inputs:
       is_required: true
       is_expand: true
       is_sensitive: true
+  - sentry_url: https://sentry.io/
+    opts:
+      title: Server URL for Sentry
+      description: |
+        Fully qualified URL to the Sentry server.
+        [defaults to https://sentry.io/]
+      is_required: true
   - sentry_org_slug:
     opts:
       title: Org Slug for Sentry
