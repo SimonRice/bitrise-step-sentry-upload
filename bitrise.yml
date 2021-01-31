@@ -33,6 +33,7 @@ workflows:
         run_if: true
         inputs:
         - sentry_auth_token: $sentry_auth_token
+        - sentry_url: $sentry_url
         - sentry_org_slug: $sentry_org_slug
         - sentry_project_slug: $sentry_project_slug
         - sentry_dsym_path: $sentry_dsym_path
