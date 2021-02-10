@@ -1,2 +1,6 @@
 .bitrise*
 .gows.user.yml
+*.dSYM
+mapping.txt
+.vscode/launch.json
+.DS_Store
