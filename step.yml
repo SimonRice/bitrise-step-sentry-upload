@@ -86,11 +86,9 @@ inputs:
       title: dSYM path
       summary: "Path to your dSYM"
       is_expand: true
-      is_sensitive: true
 
   - proguard_mapping_path:
     opts:
       title: Proguard mapping.txt path
       summary: "Path to your Proguard mapping.txt"
       is_expand: true
-      is_sensitive: true
