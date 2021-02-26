@@ -2,8 +2,6 @@ github.com/bitrise-io/go-steputils v0.0.0-20201016102104-03ae3a6ded35 h1:iKtx/Rx
 github.com/bitrise-io/go-steputils v0.0.0-20201016102104-03ae3a6ded35/go.mod h1:GXgBV3Frd3qcnsg+NryQTyx1CHjZHr/2w7Bx4WAcB4o=
 github.com/bitrise-io/go-utils v0.0.0-20201211082830-859032e9adf0 h1:HR5o2gHKo0rAMfKogclAg4KOnEX8XniC7A3JFuEAXjY=
 github.com/bitrise-io/go-utils v0.0.0-20201211082830-859032e9adf0/go.mod h1:tTEsKvbz1LbzuN/KpVFHXnLtcAPdEgIdM41s0lL407s=
-github.com/bitrise-tools/go-steputils v0.0.0-20201016102104-03ae3a6ded35 h1:UDNnwjDB1D9uI0VHdTHkSR3ZTOSqOp5Awyh2HBqrD/o=
-github.com/bitrise-tools/go-steputils v0.0.0-20201016102104-03ae3a6ded35/go.mod h1:4eEx1Bd2AAVAN/YGK4V066jO7ekrsLymkyQZzx2UEwQ=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
