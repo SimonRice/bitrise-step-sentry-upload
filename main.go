@@ -49,6 +49,39 @@ func uploadSymbols(cfg Config, sentry SentryCommand, cmd CommandExecutor) ([]byt
 	return cmd.execute(sentryCli, args...)
 }
 
+func createFinalizeRelease(cfg Config, cmd CommandExecutor) ([]byte, error) {
+	if cfg.ReleaseVersion == "" {
+		return []byte("No release version declared, skipping Suspect Commit tracking..."), nil
+	}
+	args := buildReleaseArgs(cfg)
+	if cfg.IsDebugMode == "true" {
+		args = append(args, logDebugArg)
+	}
+
+	fmt.Println(fmt.Sprintf("Executing %s command, creating and finalizing release: %s", releasesCmd, cfg.ReleaseVersion))
+	out, err := cmd.execute(sentryCli, args...)
+	if err != nil {
+		return out, err
+	}
+	fmt.Println(fmt.Sprintf("%s", out))
+	return linkCommitsToRelease(cfg, cmd)
+}
+
+func linkCommitsToRelease(cfg Config, cmd CommandExecutor) ([]byte, error) {
+	var args []string
+	if cfg.AssociatedCommits != "" {
+		args = append(args, linkManualCommitsArgs(cfg)...)
+		fmt.Println(fmt.Sprintf("Manually linking %s, to release: %s...", cfg.AssociatedCommits, cfg.ReleaseVersion))
+	} else {
+		args = append(args, linkAutoCommitsArgs(cfg)...)
+		fmt.Println(fmt.Sprintf("Automatically linking commits to release: %s...", cfg.ReleaseVersion))
+	}
+	if cfg.IsDebugMode == "true" {
+		args = append(args, logDebugArg)
+	}
+	return cmd.execute(sentryCli, args...)
+}
+
 func main() {
 	var cfg Config
 	if err := stepconf.Parse(&cfg); err != nil {
@@ -65,6 +98,14 @@ func main() {
 		fmt.Printf("%s", string(out))
 		os.Exit(1)
 	}
+
+	releaseOut, releaseErr := createFinalizeRelease(cfg, cmd)
+	if releaseErr != nil {
+		fmt.Printf("%s\n", releaseErr)
+		fmt.Printf("%s", string(releaseOut))
+		os.Exit(1)
+	}
+	fmt.Println(fmt.Sprintf("%s", releaseOut))
 
 	os.Exit(0)
 }
