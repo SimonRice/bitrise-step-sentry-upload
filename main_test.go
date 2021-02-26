@@ -290,27 +290,15 @@ func TestCreateFinalizeRelease_Failed(t *testing.T) {
 		expectedErr  error
 	}{
 		{
-			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingVersionString)},
+			cmd: TestCommandExecutor{ret: nil, err: nil},
 			cfg: Config{
 				IsDebugMode: "true",
 				AuthToken:   testConfig.AuthToken,
 				OrgSlug:     testConfig.OrgSlug,
 				ProjectSlug: testConfig.ProjectSlug,
 			},
-			expectedArgs: []string{
-				authTokenArg,
-				testConfig.AuthToken,
-				releasesCmd,
-				orgSlugArg,
-				testConfig.OrgSlug,
-				newReleaseSubCmd,
-				projectSlugArg,
-				testConfig.ProjectSlug,
-				"", // missing release arg
-				finalizeReleaseArg,
-				logDebugArg,
-			},
-			expectedErr: errors.New(missingVersionString),
+			expectedArgs: os.Args,
+			expectedErr:  nil,
 		},
 		{
 			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingOrg)},
@@ -364,12 +352,14 @@ func TestCreateFinalizeRelease_Failed(t *testing.T) {
 
 	for _, test := range tests {
 		_, err := createFinalizeRelease(test.cfg, test.cmd)
-		if err == nil {
-			t.Errorf("Test failed: Expected error %v", test.expectedErr)
+		if err == nil && test.expectedErr != nil {
+			t.Errorf("Test failed: Expected error %v, got %v", test.expectedErr, err)
 		}
 		if !reflect.DeepEqual(os.Args, test.expectedArgs) {
 			t.Errorf("Test failed: Expected args %v, got %v", test.expectedArgs, os.Args)
-		} // reset Args
+		}
+
+		// reset Args
 		os.Args = []string{}
 	}
 }
