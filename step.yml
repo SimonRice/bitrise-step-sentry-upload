@@ -75,8 +75,8 @@ inputs:
 
   - org_slug:
     opts:
-      title: Organisation slug
-      summary: "Organisation slug for your Sentry organisation"
+      title: Organization slug
+      summary: "Organization slug for your Sentry organization"
       is_required: true
       is_expand: true
       is_sensitive: true
