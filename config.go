@@ -12,4 +12,7 @@ type Config struct {
 	ProjectSlug      string `env:"project_slug"`
 	DsymPath         string `env:"dsym_path"`
 	ProguardPath     string `env:"proguard_mapping_path"`
+	// Release/commit tracking inputs
+	ReleaseVersion    string `env:"release_version"`
+	AssociatedCommits string `env:"associated_commits"`
 }

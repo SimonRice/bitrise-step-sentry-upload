@@ -52,7 +52,15 @@ inputs:
       title: Auth token for your Sentry user account
       summary: Auth token for your Sentry user account. Required to upload symbols.
       description: |
-        "Auth token can be created on Sentry via Settings > Account > API > Auth Tokens"
+        Auth token can be created on Sentry via Settings > Account > API > Auth Tokens.
+
+        If you wish to use the Release Management functionality for suspect commit tracking, be
+        sure to create an auth token with the correct scopes! At minimum, Sentry recommends:
+
+        * project:read
+        * project:releases
+        * org:read
+
       is_required: true
       is_expand: true
       is_sensitive: true
@@ -91,4 +99,29 @@ inputs:
     opts:
       title: Proguard mapping.txt path
       summary: "Path to your Proguard mapping.txt"
+      is_expand: true
+
+  - release_version:
+    opts:
+      title: Release version identifier
+      summary: "Unique release version identifier"
+      category: "Release Management"
+      description: |-
+        Defines the release version identifier that will be sent to Sentry.
+
+        Version name here should follow the recommendations in the Sentry docs at https://docs.sentry.io/product/cli/releases/#creating-releases
+      is_expand: true
+
+  - associated_commits:
+    opts:
+      title: Associated commit refs
+      summary: "Optionally supply the commits to reference to the release"
+      category: "Release Management"
+      description: |-
+        Manually define the commits that should be tied to this release version.
+
+        Given value should define the repository name and the commit reference, or optionally a range of commits
+        to include in this release, such as `org/repo@from..to`
+
+        See the sentry-cli documentation for more information: https://docs.sentry.io/product/releases/suspect-commits/#using-the-cli
       is_expand: true
