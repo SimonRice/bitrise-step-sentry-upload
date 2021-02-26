@@ -8,13 +8,14 @@ import (
 )
 
 var testConfig = Config{
-	IsDebugMode:  "true",
-	AuthToken:    "abcd12345",
-	SentryURL:    "https://sentry.io/",
-	OrgSlug:      "my-org",
-	ProjectSlug:  "my-project",
-	DsymPath:     "path/to/dsym",
-	ProguardPath: "path/to/proguard",
+	IsDebugMode:    "true",
+	AuthToken:      "abcd12345",
+	SentryURL:      "https://sentry.io/",
+	OrgSlug:        "my-org",
+	ProjectSlug:    "my-project",
+	DsymPath:       "path/to/dsym",
+	ProguardPath:   "path/to/proguard",
+	ReleaseVersion: "myOrg/com.example.myApp@1.0.0",
 }
 
 /// TestCommandExecutor to mock command execution in tests
@@ -157,12 +158,12 @@ func TestUploadSymbols_Success(t *testing.T) {
 			},
 			cfg: testConfig,
 			expected: []string{
-				"--auth-token",
+				authTokenArg,
 				testConfig.AuthToken,
 				uploadProguardCmd,
-				"--org",
+				orgSlugArg,
 				testConfig.OrgSlug,
-				"--project",
+				projectSlugArg,
 				testConfig.ProjectSlug,
 				testConfig.ProguardPath,
 				logDebugArg,
@@ -180,12 +181,12 @@ func TestUploadSymbols_Success(t *testing.T) {
 			},
 			cfg: testConfig,
 			expected: []string{
-				"--auth-token",
+				authTokenArg,
 				testConfig.AuthToken,
 				uploadDifCmd,
-				"--org",
+				orgSlugArg,
 				testConfig.OrgSlug,
-				"--project",
+				projectSlugArg,
 				testConfig.ProjectSlug,
 				testConfig.DsymPath,
 				logDebugArg,
@@ -235,6 +236,208 @@ func TestUploadSymbols_Failed(t *testing.T) {
 			t.Errorf("Test failed: Expected args %v, got %v", test.expected, os.Args)
 		}
 		// reset Args
+		os.Args = []string{}
+	}
+}
+
+func TestCreateFinalizeRelease_Success(t *testing.T) {
+	const successString = "Success"
+
+	cmd := TestCommandExecutor{ret: []byte(successString), err: nil}
+	cfg := Config{
+		IsDebugMode:    "true",
+		AuthToken:      testConfig.AuthToken,
+		OrgSlug:        testConfig.OrgSlug,
+		ProjectSlug:    testConfig.ProjectSlug,
+		ReleaseVersion: testConfig.ReleaseVersion,
+	}
+	// expected output from --auto `linkCommitsToRelease()`
+	expectedArgs := []string{
+		authTokenArg,
+		testConfig.AuthToken,
+		releasesCmd,
+		orgSlugArg,
+		testConfig.OrgSlug,
+		setCommitsCmd,
+		autoCommitsArg,
+		testConfig.ReleaseVersion,
+		logDebugArg,
+	}
+	expectedOut := successString
+
+	out, err := createFinalizeRelease(cfg, cmd)
+	if string(out) != expectedOut {
+		t.Errorf("Test failed: Expected output %v, got %v", out, expectedOut)
+	}
+	if err != nil {
+		t.Errorf("Test failed: Expected no error, got %v", err)
+	}
+	if !reflect.DeepEqual(os.Args, expectedArgs) {
+		t.Errorf("Test failed: Expected args %v, got %v", expectedArgs, os.Args)
+	} // reset Args
+	os.Args = []string{}
+
+}
+func TestCreateFinalizeRelease_Failed(t *testing.T) {
+	const missingVersionString = "Missing version string"
+	const missingOrg = "Missing org slug"
+	const missingProject = "Missing project slug"
+
+	var tests = []struct {
+		cmd          CommandExecutor
+		cfg          Config
+		expectedArgs []string
+		expectedErr  error
+	}{
+		{
+			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingVersionString)},
+			cfg: Config{
+				IsDebugMode: "true",
+				AuthToken:   testConfig.AuthToken,
+				OrgSlug:     testConfig.OrgSlug,
+				ProjectSlug: testConfig.ProjectSlug,
+			},
+			expectedArgs: []string{
+				authTokenArg,
+				testConfig.AuthToken,
+				releasesCmd,
+				orgSlugArg,
+				testConfig.OrgSlug,
+				newReleaseSubCmd,
+				projectSlugArg,
+				testConfig.ProjectSlug,
+				"", // missing release arg
+				finalizeReleaseArg,
+				logDebugArg,
+			},
+			expectedErr: errors.New(missingVersionString),
+		},
+		{
+			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingOrg)},
+			cfg: Config{
+				IsDebugMode:    "true",
+				AuthToken:      testConfig.AuthToken,
+				OrgSlug:        "",
+				ProjectSlug:    testConfig.ProjectSlug,
+				ReleaseVersion: testConfig.ReleaseVersion,
+			},
+			expectedArgs: []string{
+				authTokenArg,
+				testConfig.AuthToken,
+				releasesCmd,
+				orgSlugArg,
+				"", // missing org arg
+				newReleaseSubCmd,
+				projectSlugArg,
+				testConfig.ProjectSlug,
+				testConfig.ReleaseVersion,
+				finalizeReleaseArg,
+				logDebugArg,
+			},
+			expectedErr: errors.New(missingOrg),
+		},
+		{
+			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingProject)},
+			cfg: Config{
+				IsDebugMode:    "true",
+				AuthToken:      testConfig.AuthToken,
+				OrgSlug:        testConfig.OrgSlug,
+				ProjectSlug:    "",
+				ReleaseVersion: testConfig.ReleaseVersion,
+			},
+			expectedArgs: []string{
+				authTokenArg,
+				testConfig.AuthToken,
+				releasesCmd,
+				orgSlugArg,
+				testConfig.OrgSlug,
+				newReleaseSubCmd,
+				projectSlugArg,
+				"", // missing project arg
+				testConfig.ReleaseVersion,
+				finalizeReleaseArg,
+				logDebugArg,
+			},
+			expectedErr: errors.New(missingProject),
+		},
+	}
+
+	for _, test := range tests {
+		_, err := createFinalizeRelease(test.cfg, test.cmd)
+		if err == nil {
+			t.Errorf("Test failed: Expected error %v", test.expectedErr)
+		}
+		if !reflect.DeepEqual(os.Args, test.expectedArgs) {
+			t.Errorf("Test failed: Expected args %v, got %v", test.expectedArgs, os.Args)
+		} // reset Args
+		os.Args = []string{}
+	}
+}
+
+func TestLinkCommitsToRelease_Failed(t *testing.T) {
+	const missingCommitsRef = "Repository does not exist"
+
+	var tests = []struct {
+		cmd          CommandExecutor
+		cfg          Config
+		expectedArgs []string
+		expectedErr  error
+	}{
+		{
+			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingCommitsRef)},
+			cfg: Config{
+				IsDebugMode:       "true",
+				AuthToken:         testConfig.AuthToken,
+				OrgSlug:           testConfig.OrgSlug,
+				ProjectSlug:       testConfig.ProjectSlug,
+				AssociatedCommits: "myApp@123",
+				ReleaseVersion:    testConfig.ReleaseVersion,
+			},
+			expectedArgs: []string{
+				authTokenArg,
+				testConfig.AuthToken,
+				releasesCmd,
+				orgSlugArg,
+				testConfig.OrgSlug,
+				setCommitsCmd,
+				manualCommitsArg,
+				"myApp@123",
+				testConfig.ReleaseVersion,
+				logDebugArg,
+			},
+			expectedErr: errors.New(missingCommitsRef),
+		},
+		{
+			cmd: TestCommandExecutor{ret: nil, err: errors.New(missingCommitsRef)},
+			cfg: Config{
+				IsDebugMode: "true",
+				AuthToken:   testConfig.AuthToken,
+				OrgSlug:     testConfig.OrgSlug,
+				ProjectSlug: testConfig.ProjectSlug,
+			},
+			expectedArgs: []string{
+				authTokenArg,
+				testConfig.AuthToken,
+				releasesCmd,
+				orgSlugArg,
+				testConfig.OrgSlug,
+				setCommitsCmd,
+				autoCommitsArg,
+				"",
+				logDebugArg,
+			},
+			expectedErr: errors.New(missingCommitsRef),
+		},
+	}
+
+	for _, test := range tests {
+		_, err := linkCommitsToRelease(test.cfg, test.cmd)
+		if err == nil {
+			t.Errorf("Test failed: Expected error %v", test.expectedErr)
+		}
+		if !reflect.DeepEqual(os.Args, test.expectedArgs) {
+			t.Errorf("Test failed: Expected args %v, got %v", test.expectedArgs, os.Args)
+		} // reset Args
 		os.Args = []string{}
 	}
 }
