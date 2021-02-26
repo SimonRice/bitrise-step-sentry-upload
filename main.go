@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bitrise-tools/go-steputils/stepconf"
+	"github.com/bitrise-io/go-steputils/stepconf"
 )
 
 func delegatePlatformUploads(cfg Config, cmd CommandExecutor) ([]byte, error) {
