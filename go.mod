@@ -1,6 +1,6 @@
 module github.com/SimonRice/bitrise-step-sentry-dsym-upload
 
-go 1.15
+go 1.16
 
 require (
 	github.com/bitrise-io/go-steputils v0.0.0-20201016102104-03ae3a6ded35
