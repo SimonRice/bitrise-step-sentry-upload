@@ -1,12 +1,3 @@
-#
-# A couple of useful guides & docs:
-#
-# - Main Bitrise CLI docs: https://github.com/bitrise-io/bitrise/tree/master/_docs
-# - Step Development Guideline: https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md
-# - Bitrise.yml format spec: https://github.com/bitrise-io/bitrise/blob/master/_docs/bitrise-yml-format-spec.md
-# - Bitrise docs: http://devcenter.bitrise.io/
-# - Bitrise CLI guides: http://devcenter.bitrise.io/bitrise-cli/
-
 title: |-
   Sentry dSYM Upload
 summary: |
@@ -18,10 +9,7 @@ source_code_url: https://github.com/SimonRice/bitrise-step-sentry-dsym-upload
 support_url: https://github.com/SimonRice/bitrise-step-sentry-dsym-upload/issues
 host_os_tags:
   - osx-10.10
-project_type_tags:
-  - ios
-  - macos
-  - xamarin
+  - ubuntu-16.04
 type_tags:
   - deploy
 
@@ -32,48 +20,75 @@ run_if: ""
 
 deps:
   brew:
-  - name: getsentry/tools/sentry-cli
-
+    - name: getsentry/tools/sentry-cli
 
 toolkit:
-  bash:
-    entry_file: step.sh
-
+  go:
+    package_name: github.com/SimonRice/bitrise-step-sentry-dsym-upload
 
 inputs:
-  - sentry_auth_token: $SENTRY_AUTH_TOKEN
+  - platform: both
     opts:
-      title: Auth token for Sentry
+      title: "Platform"
+      summary: "The selected platform that symbols will be uploaded for, or both iOS and Android"
+      description: "The selected platform that symbols will be uploaded for, or both iOS and Android"
+      is_required: true
+      value_options:
+        - "both"
+        - "ios"
+        - "android"
+  - is_debug_mode: "false"
+    opts:
+      title: "Debug mode?"
+      summary: "If debug mode is enabled, the step will print verbose logs"
+      description: |-
+        If debug mode is enabled, the step will print verbose logs
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
+  - auth_token:
+    opts:
+      title: Auth token for your Sentry user account
+      summary: Auth token for your Sentry user account. Required to upload symbols.
       description: |
-        Auth token for Sentry
+        "Auth token can be created on Sentry via Settings > Account > API > Auth Tokens"
       is_required: true
       is_expand: true
       is_sensitive: true
+
   - sentry_url: https://sentry.io/
     opts:
       title: Server URL for Sentry
-      description: |
+      summary: |
         Fully qualified URL to the Sentry server.
         [defaults to https://sentry.io/]
       is_required: true
-  - sentry_org_slug:
+
+  - org_slug:
     opts:
-      title: Org Slug for Sentry
-      description: |
-        Org Slug
+      title: Organisation slug
+      summary: "Organisation slug for your Sentry organisation"
       is_required: true
       is_expand: true
-  - sentry_project_slug:
+      is_sensitive: true
+
+  - project_slug:
     opts:
-      title: Project Slug for Sentry
-      description: |
-        Project Slug
+      title: Project slug
+      summary: "Project slug for your Sentry project"
       is_required: true
       is_expand: true
-  - sentry_dsym_path: $BITRISE_DSYM_PATH
+      is_sensitive: true
+
+  - dsym_path:
     opts:
-      title: Path to your dSYM file
-      description: |
-        Path to your dSYM file
-      is_required: true
+      title: dSYM path
+      summary: "Path to your dSYM"
+      is_expand: true
+
+  - proguard_mapping_path:
+    opts:
+      title: Proguard mapping.txt path
+      summary: "Path to your Proguard mapping.txt"
       is_expand: true
