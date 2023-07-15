@@ -1,12 +1,12 @@
 title: |-
-  Sentry dSYM Upload
+  Sentry Upload
 summary: |
-  Sentry dSYM Upload
+  Sentry Upload
 description: |
-  Automatically upload your iOS dSYM information directly to Sentry
-website: https://github.com/SimonRice/bitrise-step-sentry-dsym-upload
-source_code_url: https://github.com/SimonRice/bitrise-step-sentry-dsym-upload
-support_url: https://github.com/SimonRice/bitrise-step-sentry-dsym-upload/issues
+  Automatically upload your iOS or Android symbol information directly to Sentry
+website: https://github.com/SimonRice/bitrise-step-sentry-upload
+source_code_url: https://github.com/SimonRice/bitrise-step-sentry-upload
+support_url: https://github.com/SimonRice/bitrise-step-sentry-upload/issues
 host_os_tags:
   - osx-10.10
   - ubuntu-16.04
@@ -24,7 +24,7 @@ deps:
 
 toolkit:
   go:
-    package_name: github.com/SimonRice/bitrise-step-sentry-dsym-upload
+    package_name: github.com/SimonRice/bitrise-step-sentry-upload
 
 inputs:
   - platform: both

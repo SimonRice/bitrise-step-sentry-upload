@@ -1,6 +1,6 @@
-# Sentry dSYM Upload
+# Sentry Upload
 
-Automatically upload your iOS dSYM information directly to Sentry
+Automatically upload your iOS or Android symbol information directly to Sentry
 
 
 ## How to use this Step

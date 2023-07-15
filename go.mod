@@ -1,4 +1,4 @@
-module github.com/SimonRice/bitrise-step-sentry-dsym-upload
+module github.com/SimonRice/bitrise-step-sentry-upload
 
 go 1.15
 
